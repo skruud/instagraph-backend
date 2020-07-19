@@ -1,0 +1,79 @@
+service: vd-aws-python-rest-api-with-dynamodb
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: python3.8
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  create:
+    handler: vd/create.create
+    events:
+      - http:
+          path: vd
+          method: post
+          cors: true
+
+  list:
+    handler: vd/list.list
+    events:
+      - http:
+          path: vd
+          method: get
+          cors: true
+
+  get:
+    handler: vd/get.get
+    events:
+      - http:
+          path: vd/{id}
+          method: get
+          cors: true
+
+  update:
+    handler: vd/update.update
+    events:
+      - http:
+          path: vd/{id}
+          method: put
+          cors: true
+
+  delete:
+    handler: vd/delete.delete
+    events:
+      - http:
+          path: vd/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    vdDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: date
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: date
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
