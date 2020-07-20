@@ -3,10 +3,9 @@ import time
 import logging
 import os
 
-from todos import decimalencoder
+from ig import decimalencoder
 import boto3
 dynamodb = boto3.resource('dynamodb')
-
 
 def update(event, context):
     data = json.loads(event['body'])
@@ -17,7 +16,7 @@ def update(event, context):
 
     timestamp = int(time.time() * 1000)
 
-    table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+    table = dynamodb.Table(os.environ['DYNAMODB_TABLE_POSTS'])
 
     # update the todo in the database
     result = table.update_item(

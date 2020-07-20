@@ -1,12 +1,14 @@
-service: vd-aws-python-rest-api-with-dynamodb
+service: ig-aws-python-backend
 
 frameworkVersion: ">=1.1.0 <2.0.0"
 
 provider:
   name: aws
   runtime: python3.8
+  region: ${opt:region, 'eu-north-1'}
   environment:
-    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    DYNAMODB_TABLE_POSTS: ${self:service}-${opt:stage, self:provider.stage}-posts
+    DYNAMODB_TABLE_USERS: ${self:service}-${opt:stage, self:provider.stage}-users
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -16,64 +18,80 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_POSTS}"
 
 functions:
   create:
-    handler: vd/create.create
+    handler: ig/create.create
     events:
       - http:
-          path: vd
+          path: ig
           method: post
           cors: true
 
   list:
-    handler: vd/list.list
+    handler: ig/list.list
     events:
       - http:
-          path: vd
+          path: ig
           method: get
           cors: true
 
   get:
-    handler: vd/get.get
+    handler: ig/get.get
     events:
       - http:
-          path: vd/{id}
+          path: ig/{id}
           method: get
           cors: true
 
   update:
-    handler: vd/update.update
+    handler: ig/update.update
     events:
       - http:
-          path: vd/{id}
+          path: ig/{id}
           method: put
           cors: true
 
   delete:
-    handler: vd/delete.delete
+    handler: ig/delete.delete
     events:
       - http:
-          path: vd/{id}
+          path: ig/{id}
           method: delete
           cors: true
 
 resources:
   Resources:
-    vdDynamoDbTable:
+    igPostsDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: date
+            AttributeName: id
             AttributeType: S
         KeySchema:
           -
-            AttributeName: date
+            AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_POSTS}
+    igUsersDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: userName
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: userName
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_USERS}

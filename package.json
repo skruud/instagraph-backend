@@ -1,5 +1,5 @@
 {
-  "name": "visual-data-aws-python-rest-api-with-dynamodb",
+  "name": "instagraph-aws-python-backend",
   "version": "1.0.0",
   "description": "Serverless CRUD service exposing a REST HTTP interface",
   "author": "",

@@ -1,15 +1,15 @@
 import json
 import os
 
-from vd import decimalencoder
+from ig import decimalencoder
 import boto3
 dynamodb = boto3.resource('dynamodb')
 
 
 def list(event, context):
-    table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+    table = dynamodb.Table(os.environ['DYNAMODB_TABLE_POSTS'])
 
-    # fetch all todos from the database
+    # fetch all posts from the database
     result = table.scan()
 
     # create a response
